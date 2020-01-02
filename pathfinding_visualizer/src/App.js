@@ -1,26 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
+import ReactDOM from 'react-dom';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class Grid extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      grid: [],
+    }
+  }
+
+  componentDidMount() {
+    const copygrid = [];
+    let counter = 0;
+    for(let i = 0; i < 20; i++) {
+      copygrid[i] = [];
+      for (let j = 0; j < 20; j++) {
+        copygrid[i][j] = counter;
+        counter++;
+      }
+    }
+    console.log(copygrid);
+    this.setState({
+      grid: copygrid,
+    });
+  }
+
+  render() {
+    return(
+      <div>
+        <h1>Hello</h1>
+      </div>
+    )
+  }
 }
 
-export default App;
+
+
+export default Grid;
