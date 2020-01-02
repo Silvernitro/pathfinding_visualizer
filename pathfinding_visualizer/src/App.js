@@ -11,8 +11,9 @@ class Grid extends React.Component {
       start: null,
       end: null,
       visitedNodes: null,
-      path: null,
-      phase: 1
+      path: [],
+      phase: 1,
+      foundPath: []
     }
     this.onClick = this.onClick.bind(this);
   }
@@ -27,19 +28,42 @@ class Grid extends React.Component {
         counter++;
       }
     }
-    console.log(copygrid);
     this.setState({
       grid: copygrid,
     });
   }
+
 
   onClick(key) {
     if (this.state.phase === 1) {
       this.setState({ start: key, phase: 2});
     } else if (this.state.phase === 2) {
       this.setState({ end: key, phase: 3});
-    } else {}
+    } else {
+      if (this.state.start !== null && this.state.end !== null) {
+        const graph = new Graph();
+        graph.gridtoGraph(this.state.grid);
+        const result = graph.shortestPath(this.state.start, this.state.end);
+        this.setState({
+          path: result[0],
+          visitedNodes: result[1]
+        });
+        this.animatePath(result[0]);
+      } else {}
+    }
   }
+
+  animatePath(path) {
+    for (let i = 0; i < path.length; i++) {
+      setTimeout( () => {
+        var node_div = document.getElementById(path[i]);
+        if (node_div.className === "Start" || node_div.className === "End") {
+        } else {
+          node_div.className = "Path";
+        }
+      }, 50 * i);
+    }
+  }k
 
   render() {
     const rows = this.state.grid.map((row) =>
@@ -51,14 +75,7 @@ class Grid extends React.Component {
             isEnd={this.state.end === element}
             onClick={ this.onClick }/>) }
       </div>);
-    const graph = new Graph();
-    console.log(this.state.grid);
-    graph.gridtoGraph(this.state.grid);
-    if (this.state.start !== null && this.state.end !== null) {
-      const result = graph.shortestPath(this.state.start, this.state.end);
-      console.log(result[0]);
-      console.log(result[1]);
-    }
+
 
     return(
       <div>
@@ -82,7 +99,8 @@ class Node extends React.Component {
 
     return (
       <div className={ node_state }
-        onClick={() => this.props.onClick(this.props.name)}>
+        onClick={() => this.props.onClick(this.props.name)}
+        id={this.props.name}>
       </div>
     )
   }
