@@ -32,16 +32,11 @@ class Grid extends React.Component {
     });
   }
 
-  onClick(event) {
-    console.log("clicked!");
-    const key = event.target.key;
-    console.log(key);
+  onClick(key) {
     if (this.state.phase === 1) {
       this.setState({ start: key, phase: 2});
-      console.log("Setting start");
     } else if (this.state.phase === 2) {
       this.setState({ end: key, phase: 3});
-      console.log("Setting end");
     } else {}
   }
 
@@ -50,9 +45,10 @@ class Grid extends React.Component {
       <div className="RowContainer">
         { row.map( (element) => <Node
             key={element}
+            name={element}
             isStart={this.state.start === element}
             isEnd={this.state.end === element}
-            onClick={ this.onCLick }/>) }
+            onClick={ this.onClick }/>) }
       </div>);
 
     return(
@@ -67,9 +63,9 @@ class Node extends React.Component {
   render () {
     let node_state;
 
-    if (this.props.start) {
+    if (this.props.isStart) {
       node_state = "Start";
-    } else if (this.props.end) {
+    } else if (this.props.isEnd) {
       node_state = "End";
     } else {
       node_state = "Node";
@@ -77,7 +73,7 @@ class Node extends React.Component {
 
     return (
       <div className={ node_state }
-        onClick={this.props.onClick}>
+        onClick={() => this.props.onClick(this.props.name)}>
       </div>
     )
   }
