@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './App.css';
+import {Graph} from './Graph.js'
 
 class Grid extends React.Component {
   constructor(props) {
@@ -50,6 +51,14 @@ class Grid extends React.Component {
             isEnd={this.state.end === element}
             onClick={ this.onClick }/>) }
       </div>);
+    const graph = new Graph();
+    console.log(this.state.grid);
+    graph.gridtoGraph(this.state.grid);
+    if (this.state.start !== null && this.state.end !== null) {
+      const result = graph.shortestPath(this.state.start, this.state.end);
+      console.log(result[0]);
+      console.log(result[1]);
+    }
 
     return(
       <div>
