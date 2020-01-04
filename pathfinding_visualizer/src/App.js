@@ -78,7 +78,7 @@ class Grid extends React.Component {
 
 
     return(
-      <div>
+      <div className="GameContainer">
         {rows}
       </div>
     )

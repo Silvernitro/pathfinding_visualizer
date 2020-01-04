@@ -1,33 +1,48 @@
 .Node {
-  border: 2px solid black;
-  padding: 10px 10px 10px 10px;
+  border: 0.5px solid rgb(0, 153, 255);
+  width: 20px;
+  height: 20px;
   display: inline-block;
 }
 
+.GameContainer {
+  width:80%;
+  margin: 5% 10% 5% 10%;
+  text-align: center;
+}
+
 .RowContainer {
-  margin: 0 auto;
+  vertical-align: top;
   display: inline-block;
   width: 80%;
+  height: 20px;
+  margin: 0px 10% 0px 10%;
   text-align: center;
 }
 
 .Start {
-  border: 2px solid black;
-  padding: 10px 10px 10px 10px;
+  border: 0.5px solid rgb(0, 153, 255);
+  width: 20px;
+  height: 20px;
   display: inline-block;
-  background-color: blue;
+  text-align:center;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url(./Styling/map-marker-alt-solid.svg);
 }
 
 .End {
-  border: 2px solid black;
-  padding: 10px 10px 10px 10px;
+  border: 0.5px solid rgb(0, 153, 255);
+  width: 20px;
+  height: 20px;
   display: inline-block;
-  background-color: red;
+  background-image: url(./Styling/flag-regular.svg);
 }
 
 .Path {
-  border: 2px solid black;
-  padding: 10px 10px 10px 10px;
+  border: 0.5px solid rgb(0, 153, 255);
+  width: 20px;
+  height: 20px;
   display: inline-block;
-  background-color: green;
+  background-color: #FAFF00;
 }
