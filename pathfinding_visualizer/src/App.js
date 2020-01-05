@@ -10,12 +10,12 @@ class Grid extends React.Component {
       grid: [],
       start: null,
       end: null,
-      visitedNodes: null,
+      visitedNodes: [],
       path: [],
       phase: 1,
       foundPath: []
     }
-    this.onClick = this.onClick.bind(this);
+    this.handleClick= this.handleClick.bind(this);
   }
 
   componentDidMount() {
@@ -34,36 +34,94 @@ class Grid extends React.Component {
   }
 
 
-  onClick(key) {
+  handleClick(key) {
     if (this.state.phase === 1) {
+      // set the starting node
       this.setState({ start: key, phase: 2});
     } else if (this.state.phase === 2) {
+      // set the end node
       this.setState({ end: key, phase: 3});
     } else {
+      // start Dijkstra's Algorithm
       if (this.state.start !== null && this.state.end !== null) {
         const graph = new Graph();
         graph.gridtoGraph(this.state.grid);
+
         const result = graph.shortestPath(this.state.start, this.state.end);
+
+        // store the paths returned by Dijkstra's Algo
         this.setState({
           path: result[0],
           visitedNodes: result[1]
         });
-        this.animatePath(result[0]);
+
+        // render the search animation
+        this.animate(result);
       } else {}
     }
   }
 
-  animatePath(path) {
-    for (let i = 0; i < path.length; i++) {
-      setTimeout( () => {
-        var node_div = document.getElementById(path[i]);
-        if (node_div.className === "Start" || node_div.className === "End") {
-        } else {
-          node_div.className = "Path";
-        }
-      }, 50 * i);
+  animate(result) {
+    /* This is the main animation function.
+     * It animates both the search path and result path found by Dijkstra's
+     * Algo.
+     */
+
+    /* @param {Array.<number[]>} an array where idx=0 is the search path and
+     *  idx=1 is the result path.
+     *
+     * @return {undefined} this function does not return a value
+     */
+
+    const search_path = result[1];
+    const result_path = result[0];
+
+    // function wait is a promise wrapper for setTimeout.
+    // it has the same functionality as setTimeout, but also returns a promise.
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Array to store promises returned from animating the
+    // search path
+    const promise_array = [];
+
+    function animate_search(idx) {
+      //  Animates the search path that Dijkstra's Algo takes.
+      /*  @param {number} The current index of the search_path array being
+       *  animated.
+       *  @returns {undefined} This function does not return any value
+      */
+
+      var node_div = document.getElementById(search_path[idx]);
+      if (node_div.className !== "Start" && node_div.className !== "End") {
+        node_div.className = "Visited";
+      } else {}
     }
-  }k
+
+    function animate_result() {
+      //  Animates the result path found by Dijkstra's Algo.
+
+      for (let i = 0; i < result_path.length; i++) {
+        setTimeout( () => {
+          var node_div = document.getElementById(result_path[i]);
+          if (node_div.className === "Start" || node_div.className === "End") {
+          } else {
+            node_div.className = "Path";
+          }
+        }, 50 * i);
+      }
+    }
+
+    // start animating the search path
+    for (let i = 0; i < search_path.length; i++) {
+      promise_array.push(wait(10 * i).then(() => animate_search(i)));
+    }
+
+    // After validating that all promises have been fulfilled (which means we
+    // are done animating the search path), start animating the result path
+    Promise.all(promise_array).then(animate_result);
+  }
+
+
 
   render() {
     const rows = this.state.grid.map((row) =>
@@ -73,12 +131,12 @@ class Grid extends React.Component {
             name={element}
             isStart={this.state.start === element}
             isEnd={this.state.end === element}
-            onClick={ this.onClick }/>) }
+            onClick={ this.handleClick}/>) }
       </div>);
 
 
     return(
-      <div>
+      <div className="GameContainer">
         {rows}
       </div>
     )

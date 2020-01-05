@@ -1,3 +1,7 @@
+.GameContainer {
+  text-align: center;
+}
+
 .Node {
   border: 2px solid black;
   padding: 10px 10px 10px 10px;
@@ -30,4 +34,11 @@
   padding: 10px 10px 10px 10px;
   display: inline-block;
   background-color: green;
+}
+
+.Visited {
+  border: 2px solid black;
+  padding: 10px 10px 10px 10px;
+  display: inline-block;
+  background-color: lightgrey;
 }
