@@ -54,3 +54,11 @@
   display: inline-block;
   background-color: lightgrey;
 }
+
+.Wall {
+  border: 0.5px solid rgb(0, 153, 255);
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-color: black;
+}

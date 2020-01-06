@@ -8,14 +8,20 @@ class Grid extends React.Component {
     super(props);
     this.state = {
       grid: [],
-      start: null,
-      end: null,
+      start: {},
+      end: {},
       visitedNodes: [],
       path: [],
       phase: 1,
+      addingWalls: false,
+      drawingWalls: false,
       foundPath: []
     }
-    this.handleClick= this.handleClick.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.buttonPress = this.buttonPress.bind(this);
+    this.handleLongPress = this.handleLongPress.bind(this);
+    this.handlePressRelease = this.handlePressRelease.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
   }
 
   componentDidMount() {
@@ -24,13 +30,49 @@ class Grid extends React.Component {
     for(let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = counter;
+        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
         counter++;
       }
     }
     this.setState({
       grid: copygrid,
     });
+  }
+
+  buttonPress(event) {
+    // method to handle pressing of buttons. (only add wall button currently)
+    const {name, value} = event.target;
+    if (name === "addingWalls") {
+      this.setState(prev => ({
+        addingWalls: !prev.addingWalls
+      }));
+    }
+
+  }
+
+  handleLongPress(event) {
+    if (this.state.addingWalls){
+      this.buttonPressTimer = setTimeout(() => this.setState(prev => ({
+        drawingWalls: true,
+      })), 750);
+    }
+	}
+
+	handlePressRelease() {
+    clearTimeout(this.buttonPressTimer);
+    this.setState({
+      drawingWalls: false,
+    });
+  }
+  
+  handleMouseOver(key) {
+    if (this.state.drawingWalls) {
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].isWall = true;
+      this.setState({
+        grid:copied,
+      });
+    }
   }
 
 
@@ -41,14 +83,12 @@ class Grid extends React.Component {
     } else if (this.state.phase === 2) {
       // set the end node
       this.setState({ end: key, phase: 3});
-    } else {
+    } else  {
       // start Dijkstra's Algorithm
-      if (this.state.start !== null && this.state.end !== null) {
+      if ((this.state.start !== null && this.state.end !== null) && !this.state.addingWalls) {
         const graph = new Graph();
         graph.gridtoGraph(this.state.grid);
-
         const result = graph.shortestPath(this.state.start, this.state.end);
-
         // store the paths returned by Dijkstra's Algo
         this.setState({
           path: result[0],
@@ -127,18 +167,25 @@ class Grid extends React.Component {
     const rows = this.state.grid.map((row) =>
       <div className="RowContainer">
         { row.map( (element) => <Node
-            key={element}
-            name={element}
-            isStart={this.state.start === element}
-            isEnd={this.state.end === element}
-            onClick={ this.handleClick}/>) }
+            key={element.name}
+            element={element}
+            isStart={this.state.start.name === element.name}
+            isEnd={this.state.end.name === element.name}
+            isWall={element.isWall}
+            onClick={this.handleClick}
+            onMouseDown={this.handleLongPress}
+            onMouseUp={this.handlePressRelease}
+            onMouseOver={this.handleMouseOver}
+            />) }
       </div>);
 
 
     return(
       <div className="GameContainer">
         {rows}
+        <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls}/>
       </div>
+      
     )
   }
 }
@@ -151,17 +198,30 @@ class Node extends React.Component {
       node_state = "Start";
     } else if (this.props.isEnd) {
       node_state = "End";
+    } else if (this.props.isWall) {
+      node_state = "Wall";
     } else {
       node_state = "Node";
     }
 
     return (
       <div className={ node_state }
-        onClick={() => this.props.onClick(this.props.name)}
-        id={this.props.name}>
+        onClick={() => this.props.onClick(this.props.element)}
+        id={this.props.element.name}
+        onMouseDown={this.props.onMouseDown}
+        onMouseUp={this.props.onMouseUp}
+        onMouseOver={() => this.props.onMouseOver(this.props.element)}>
       </div>
     )
   }
+}
+
+function Options(props) {
+  return(
+    <button onClick={props.buttonPress} name="addingWalls">
+      {props.addingWalls ? "Done" : "Add Walls"}
+    </button>
+  )
 }
 
 
