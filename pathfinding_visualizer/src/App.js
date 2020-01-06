@@ -21,9 +21,9 @@ class Grid extends React.Component {
   componentDidMount() {
     const copygrid = [];
     let counter = 0;
-    for(let i = 0; i < 20; i++) {
+    for(let i = 0; i < 25; i++) {
       copygrid[i] = [];
-      for (let j = 0; j < 20; j++) {
+      for (let j = 0; j < 25; j++) {
         copygrid[i][j] = counter;
         counter++;
       }
