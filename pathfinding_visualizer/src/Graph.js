@@ -1,18 +1,19 @@
 
 export class Graph {
     constructor() {
+        // nodes are objects with 4 key-value pairs: name, row, col, isWall
         this.nodes = [];
         this.adjList = {};
     }
 
     addNode(node) {
         this.nodes.push(node);
-        this.adjList[node] = [];
+        this.adjList[node.name] = [];
     }
 
     addEdge(node1, node2, weight) {
-        this.adjList[node1].push({node:node2, weight:weight});
-        this.adjList[node2].push({node:node1, weight:weight});
+        this.adjList[node1.name].push({node:node2, weight:weight});
+        this.adjList[node2.name].push({node:node1, weight:weight});
     }
 
     shortestPath(startNode, endNode) {
@@ -21,10 +22,10 @@ export class Graph {
         let pq = [];
         const visited = [];
 
-        times[startNode] = 0;
+        times[startNode.name] = 0;
         this.nodes.forEach(node => {
-            if (node !== startNode) {
-                times[node] = Infinity;
+            if (node.name !== startNode.name) {
+                times[node.name] = Infinity;
             }
         });
 
@@ -35,23 +36,29 @@ export class Graph {
                                                 ? -1 
                                                 : 0);
             let currentNode = pq.shift()[0];
-            visited.push(currentNode);
-            if (currentNode === endNode) {break;}
-            this.adjList[currentNode].forEach(neighbor => {
-                let time = times[currentNode] + neighbor.weight;
-                if (time < times[neighbor.node]) {
-                    times[neighbor.node] = time;
-                    backtrace[neighbor.node] = currentNode;
-                    pq.push([neighbor.node, time]);
-                }
-            });
+            if (currentNode.isWall) {
 
+            } else {
+                visited.push(currentNode.name);
+                if (currentNode.name === endNode.name) {
+                    break;
+                } else {
+                    this.adjList[currentNode.name].forEach(neighbor => {
+                        let time = times[currentNode.name] + neighbor.weight;
+                        if (time < times[neighbor.node.name]) {
+                            times[neighbor.node.name] = time;
+                            backtrace[neighbor.node.name] = currentNode.name;
+                            pq.push([neighbor.node, time]);
+                        }
+                    });
+                }
+            }
 
         }
 
-        let path = [endNode];
-        let lastVisited = endNode;
-        while (lastVisited !== startNode) {
+        let path = [endNode.name];
+        let lastVisited = endNode.name;
+        while (lastVisited !== startNode.name) {
             path.unshift(backtrace[lastVisited]);
             lastVisited = backtrace[lastVisited];
         }
@@ -81,10 +88,7 @@ export class Graph {
     
 }
 
-// const grid = [[0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15]];
-// const graph = new Graph();
-// graph.gridtoGraph(grid);
-// graph.shortestPath(0,11);
+
 
 
 
