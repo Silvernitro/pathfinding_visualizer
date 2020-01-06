@@ -30,9 +30,13 @@ export class Graph {
 
         pq.push([startNode, 0]);
         while (pq.length !== 0) {
-            pq.sort();
+            pq.sort((a,b) => (a[1] > b[1]) ? 1
+                                           : (b[1] > a[1])
+                                                ? -1 
+                                                : 0);
             let currentNode = pq.shift()[0];
             visited.push(currentNode);
+            if (currentNode === endNode) {break;}
             this.adjList[currentNode].forEach(neighbor => {
                 let time = times[currentNode] + neighbor.weight;
                 if (time < times[neighbor.node]) {
