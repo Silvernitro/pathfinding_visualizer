@@ -22,6 +22,7 @@ class Grid extends React.Component {
     this.handleLongPress = this.handleLongPress.bind(this);
     this.handlePressRelease = this.handlePressRelease.bind(this);
     this.handleMouseOver = this.handleMouseOver.bind(this);
+    this.resetGrid = this.resetGrid.bind(this);
   }
 
   componentDidMount() {
@@ -46,8 +47,10 @@ class Grid extends React.Component {
       this.setState(prev => ({
         addingWalls: !prev.addingWalls
       }));
+    } else if (name === "resetButton") {
+      console.log("resetting");
+      this.resetGrid();
     }
-
   }
 
   handleLongPress(event) {
@@ -112,6 +115,34 @@ class Grid extends React.Component {
         } else {}
       }
     }
+  }
+
+  resetGrid() {
+    /*  This function resets the entire state of the search grid and algorithm.
+     *  It is called when the user presses the reset button
+     */
+
+    const copygrid = [];
+    let counter = 0;
+    for(let i = 0; i < 25; i++) {
+      copygrid[i] = [];
+      for (let j = 0; j < 25; j++) {
+        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
+        counter++;
+      }
+    }
+
+    this.setState({
+      grid: copygrid,
+      start: {},
+      end: {},
+      visitedNodes: [],
+      path: [],
+      phase: 1,
+      addingWalls: false,
+      drawingWalls: false,
+      foundPath: []
+    });
   }
 
   animate(result) {
@@ -197,7 +228,8 @@ class Grid extends React.Component {
       <div className="GameContainer">
         <StatusTitle addingWalls={this.state.addingWalls} phase={this.state.phase} />
         {rows}
-        <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls}/>
+        <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls} />
+        <ResetButton buttonPress={this.buttonPress} />
       </div>
 
     )
@@ -234,6 +266,14 @@ function Options(props) {
   return(
     <button onClick={props.buttonPress} name="addingWalls">
       {props.addingWalls ? "Done" : "Add Walls"}
+    </button>
+  )
+}
+
+function ResetButton(props) {
+  return (
+    <button onClick={props.buttonPress} name="resetButton">
+      Reset
     </button>
   )
 }
