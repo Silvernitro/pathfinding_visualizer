@@ -122,9 +122,10 @@ class Grid extends React.Component {
      *  It is called when the user presses the reset button
      */
 
+    // Create a new empty grid as in ComponentDidMount
     const copygrid = [];
     let counter = 0;
-    for(let i = 0; i < 25; i++) {
+    for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
         copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
@@ -132,6 +133,20 @@ class Grid extends React.Component {
       }
     }
 
+    function resetNodeClass(value) {
+      // This function resets the class of the give node (by id) to .Node
+      // It is used to un-color colored nodes.
+      var node_div = document.getElementById(value);
+      node_div.className = "Node";
+    }
+
+    // Reset the color of nodes in the search path.
+    this.state.visitedNodes.forEach(resetNodeClass);
+
+    // Reset the color of nodes in the result path.
+    this.state.path.forEach(resetNodeClass);
+
+    // Reset the reset of the grid state
     this.setState({
       grid: copygrid,
       start: {},
@@ -143,6 +158,7 @@ class Grid extends React.Component {
       drawingWalls: false,
       foundPath: []
     });
+
   }
 
   animate(result) {
