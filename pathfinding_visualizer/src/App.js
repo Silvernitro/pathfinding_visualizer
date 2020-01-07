@@ -8,14 +8,21 @@ class Grid extends React.Component {
     super(props);
     this.state = {
       grid: [],
-      start: null,
-      end: null,
+      start: {},
+      end: {},
       visitedNodes: [],
       path: [],
       phase: 1,
+      addingWalls: false,
+      drawingWalls: false,
       foundPath: []
     }
-    this.handleClick= this.handleClick.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.buttonPress = this.buttonPress.bind(this);
+    this.handleLongPress = this.handleLongPress.bind(this);
+    this.handlePressRelease = this.handlePressRelease.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
+    this.resetGrid = this.resetGrid.bind(this);
   }
 
   componentDidMount() {
@@ -24,7 +31,7 @@ class Grid extends React.Component {
     for(let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = counter;
+        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
         counter++;
       }
     }
@@ -33,32 +40,125 @@ class Grid extends React.Component {
     });
   }
 
+  buttonPress(event) {
+    // method to handle pressing of buttons. (only add wall button currently)
+    const {name, value} = event.target;
+    if (name === "addingWalls") {
+      this.setState(prev => ({
+        addingWalls: !prev.addingWalls
+      }));
+    } else if (name === "resetButton") {
+      console.log("resetting");
+      this.resetGrid();
+    }
+  }
+
+  handleLongPress(event) {
+    if (this.state.addingWalls){
+      this.buttonPressTimer = setTimeout(() => this.setState(prev => ({
+        drawingWalls: true,
+      })), 750);
+    }
+	}
+
+	handlePressRelease() {
+    clearTimeout(this.buttonPressTimer);
+    this.setState({
+      drawingWalls: false,
+    });
+  }
+
+  handleMouseOver(key) {
+    if (this.state.drawingWalls) {
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].isWall = true;
+      this.setState({
+        grid:copied,
+      });
+    }
+  }
+
 
   handleClick(key) {
-    if (this.state.phase === 1) {
-      // set the starting node
-      this.setState({ start: key, phase: 2});
-    } else if (this.state.phase === 2) {
-      // set the end node
-      this.setState({ end: key, phase: 3});
+    if (this.state.addingWalls) {
+      /*  If the user is in "Add Walls" mode, allow the user to paint
+       *  individual nodes by clicking on them.
+       */
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].isWall = true;
+      this.setState({ grid:copied });
+
     } else {
-      // start Dijkstra's Algorithm
-      if (this.state.start !== null && this.state.end !== null) {
-        const graph = new Graph();
-        graph.gridtoGraph(this.state.grid);
+      /* Else, the user is trying to select a start/end node, or ready to start
+       * the search algorithm.
+       */
+      if (this.state.phase === 1) {
+        // set the starting node
+        this.setState({ start: key, phase: 2});
+      } else if (this.state.phase === 2) {
+        // set the end node
+        this.setState({ end: key, phase: 3});
+      } else  {
+        // start Dijkstra's Algorithm
+        if ((this.state.start !== null && this.state.end !== null) && !this.state.addingWalls) {
+          const graph = new Graph();
+          graph.gridtoGraph(this.state.grid);
+          const result = graph.shortestPath(this.state.start, this.state.end);
+          // store the paths returned by Dijkstra's Algo
+          this.setState({
+            path: result[0],
+            visitedNodes: result[1]
+          });
 
-        const result = graph.shortestPath(this.state.start, this.state.end);
-
-        // store the paths returned by Dijkstra's Algo
-        this.setState({
-          path: result[0],
-          visitedNodes: result[1]
-        });
-
-        // render the search animation
-        this.animate(result);
-      } else {}
+          // render the search animation
+          this.animate(result);
+        } else {}
+      }
     }
+  }
+
+  resetGrid() {
+    /*  This function resets the entire state of the search grid and algorithm.
+     *  It is called when the user presses the reset button
+     */
+
+    // Create a new empty grid as in ComponentDidMount
+    const copygrid = [];
+    let counter = 0;
+    for (let i = 0; i < 25; i++) {
+      copygrid[i] = [];
+      for (let j = 0; j < 25; j++) {
+        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
+        counter++;
+      }
+    }
+
+    function resetNodeClass(value) {
+      // This function resets the class of the give node (by id) to .Node
+      // It is used to un-color colored nodes.
+      var node_div = document.getElementById(value);
+      node_div.className = "Node";
+    }
+
+    // Reset the color of nodes in the search path.
+    this.state.visitedNodes.forEach(resetNodeClass);
+
+    // Reset the color of nodes in the result path.
+    this.state.path.forEach(resetNodeClass);
+
+    // Reset the reset of the grid state
+    this.setState({
+      grid: copygrid,
+      start: {},
+      end: {},
+      visitedNodes: [],
+      path: [],
+      phase: 1,
+      addingWalls: false,
+      drawingWalls: false,
+      foundPath: []
+    });
+
   }
 
   animate(result) {
@@ -127,18 +227,27 @@ class Grid extends React.Component {
     const rows = this.state.grid.map((row) =>
       <div className="RowContainer">
         { row.map( (element) => <Node
-            key={element}
-            name={element}
-            isStart={this.state.start === element}
-            isEnd={this.state.end === element}
-            onClick={ this.handleClick}/>) }
+            key={element.name}
+            element={element}
+            isStart={this.state.start.name === element.name}
+            isEnd={this.state.end.name === element.name}
+            isWall={element.isWall}
+            onClick={this.handleClick}
+            onMouseDown={this.handleLongPress}
+            onMouseUp={this.handlePressRelease}
+            onMouseOver={this.handleMouseOver}
+            />) }
       </div>);
 
 
     return(
       <div className="GameContainer">
+        <StatusTitle addingWalls={this.state.addingWalls} phase={this.state.phase} />
         {rows}
+        <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls} />
+        <ResetButton buttonPress={this.buttonPress} />
       </div>
+
     )
   }
 }
@@ -151,17 +260,65 @@ class Node extends React.Component {
       node_state = "Start";
     } else if (this.props.isEnd) {
       node_state = "End";
+    } else if (this.props.isWall) {
+      node_state = "Wall";
     } else {
       node_state = "Node";
     }
 
     return (
       <div className={ node_state }
-        onClick={() => this.props.onClick(this.props.name)}
-        id={this.props.name}>
+        onClick={() => this.props.onClick(this.props.element)}
+        id={this.props.element.name}
+        onMouseDown={this.props.onMouseDown}
+        onMouseUp={this.props.onMouseUp}
+        onMouseOver={() => this.props.onMouseOver(this.props.element)}>
       </div>
     )
   }
+}
+
+function Options(props) {
+  return(
+    <button onClick={props.buttonPress} name="addingWalls">
+      {props.addingWalls ? "Done" : "Add Walls"}
+    </button>
+  )
+}
+
+function ResetButton(props) {
+  return (
+    <button onClick={props.buttonPress} name="resetButton">
+      Reset
+    </button>
+  )
+}
+
+function StatusTitle(props) {
+  /*  This component displays the current phase to the user.
+   *  The user can either be choosing a start node, end node, drawing walls, or
+   *  be prompted to start the algorithm.
+   *
+   *  { StatusTitle.props.addingWalls } Predicate to check if user is drawing
+   *  walls.
+   *
+   *  { StatusTitle.props.phase } Number to track whether the user is setting
+   *  start/end nodes or ready to start the algorithm.
+   */
+
+  let title_string;
+
+  if (props.addingWalls) {
+    title_string = "Click and hold to draw walls on the grid";
+  } else if (props.phase === 1) {
+    title_string = "Click to choose the starting node";
+  } else if (props.phase === 2) {
+    title_string = "Click to choose the end node";
+  } else {
+    title_string = "Click anywhere on the grid to start the search algorithm";
+  }
+
+  return <h1 className="StatusTitle">{title_string}</h1>
 }
 
 
