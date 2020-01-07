@@ -64,7 +64,7 @@ class Grid extends React.Component {
       drawingWalls: false,
     });
   }
-  
+
   handleMouseOver(key) {
     if (this.state.drawingWalls) {
       const copied = this.state.grid.slice();
@@ -77,27 +77,31 @@ class Grid extends React.Component {
 
 
   handleClick(key) {
-    if (this.state.phase === 1) {
-      // set the starting node
-      this.setState({ start: key, phase: 2});
-    } else if (this.state.phase === 2) {
-      // set the end node
-      this.setState({ end: key, phase: 3});
-    } else  {
-      // start Dijkstra's Algorithm
-      if ((this.state.start !== null && this.state.end !== null) && !this.state.addingWalls) {
-        const graph = new Graph();
-        graph.gridtoGraph(this.state.grid);
-        const result = graph.shortestPath(this.state.start, this.state.end);
-        // store the paths returned by Dijkstra's Algo
-        this.setState({
-          path: result[0],
-          visitedNodes: result[1]
-        });
+    if (this.state.addingWalls) {
+      // Don't let user set start and end nodes in "Add Walls" mode
+    } else {
+      if (this.state.phase === 1) {
+        // set the starting node
+        this.setState({ start: key, phase: 2});
+      } else if (this.state.phase === 2) {
+        // set the end node
+        this.setState({ end: key, phase: 3});
+      } else  {
+        // start Dijkstra's Algorithm
+        if ((this.state.start !== null && this.state.end !== null) && !this.state.addingWalls) {
+          const graph = new Graph();
+          graph.gridtoGraph(this.state.grid);
+          const result = graph.shortestPath(this.state.start, this.state.end);
+          // store the paths returned by Dijkstra's Algo
+          this.setState({
+            path: result[0],
+            visitedNodes: result[1]
+          });
 
-        // render the search animation
-        this.animate(result);
-      } else {}
+          // render the search animation
+          this.animate(result);
+        } else {}
+      }
     }
   }
 
@@ -185,7 +189,7 @@ class Grid extends React.Component {
         {rows}
         <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls}/>
       </div>
-      
+
     )
   }
 }
