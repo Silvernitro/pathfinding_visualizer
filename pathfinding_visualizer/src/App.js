@@ -78,8 +78,17 @@ class Grid extends React.Component {
 
   handleClick(key) {
     if (this.state.addingWalls) {
-      // Don't let user set start and end nodes in "Add Walls" mode
+      /*  If the user is in "Add Walls" mode, allow the user to paint
+       *  individual nodes by clicking on them.
+       */
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].isWall = true;
+      this.setState({ grid:copied });
+
     } else {
+      /* Else, the user is trying to select a start/end node, or ready to start
+       * the search algorithm.
+       */
       if (this.state.phase === 1) {
         // set the starting node
         this.setState({ start: key, phase: 2});
@@ -230,6 +239,17 @@ function Options(props) {
 }
 
 function StatusTitle(props) {
+  /*  This component displays the current phase to the user.
+   *  The user can either be choosing a start node, end node, drawing walls, or
+   *  be prompted to start the algorithm.
+   *
+   *  { StatusTitle.props.addingWalls } Predicate to check if user is drawing
+   *  walls.
+   *
+   *  { StatusTitle.props.phase } Number to track whether the user is setting
+   *  start/end nodes or ready to start the algorithm.
+   */
+
   let title_string;
 
   if (props.addingWalls) {
