@@ -186,6 +186,7 @@ class Grid extends React.Component {
 
     return(
       <div className="GameContainer">
+        <StatusTitle addingWalls={this.state.addingWalls} phase={this.state.phase} />
         {rows}
         <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls}/>
       </div>
@@ -226,6 +227,22 @@ function Options(props) {
       {props.addingWalls ? "Done" : "Add Walls"}
     </button>
   )
+}
+
+function StatusTitle(props) {
+  let title_string;
+
+  if (props.addingWalls) {
+    title_string = "Click and hold to draw walls on the grid";
+  } else if (props.phase === 1) {
+    title_string = "Click to choose the starting node";
+  } else if (props.phase === 2) {
+    title_string = "Click to choose the end node";
+  } else {
+    title_string = "Click anywhere on the grid to start the search algorithm";
+  }
+
+  return <h1 className="StatusTitle">{title_string}</h1>
 }
 
 
