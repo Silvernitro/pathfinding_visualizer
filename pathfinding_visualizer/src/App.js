@@ -104,6 +104,12 @@ class Grid extends React.Component {
           const graph = new Graph();
           graph.gridtoGraph(this.state.grid);
           const result = graph.shortestPath(this.state.start, this.state.end);
+          if (result === null) {
+            this.setState({
+              phase: 4
+            });
+            return;
+          }
           // store the paths returned by Dijkstra's Algo
           this.setState({
             path: result[0],
@@ -182,7 +188,6 @@ class Grid extends React.Component {
      *
      * @return {undefined} this function does not return a value
      */
-
     const search_path = result[1];
     const result_path = result[0];
 
@@ -324,6 +329,8 @@ function StatusTitle(props) {
     title_string = "Click to choose the starting node";
   } else if (props.phase === 2) {
     title_string = "Click to choose the end node";
+  } else if (props.phase === 4) {
+    title_string = "No path found!"
   } else {
     title_string = "Click anywhere on the grid to start the search algorithm";
   }

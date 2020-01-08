@@ -35,7 +35,8 @@ export class Graph {
                                            : (b[1] > a[1])
                                                 ? -1 
                                                 : 0);
-            let currentNode = pq.shift()[0];
+            let current = pq.shift()
+            let currentNode = current[0]
             if (currentNode.isWall) {
 
             } else {
@@ -55,7 +56,9 @@ export class Graph {
             }
 
         }
-
+        if (times[endNode.name] === Infinity) {
+            return null;
+        }
         let path = [endNode.name];
         let lastVisited = endNode.name;
         while (lastVisited !== startNode.name) {
