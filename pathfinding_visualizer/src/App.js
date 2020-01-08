@@ -122,6 +122,7 @@ class Grid extends React.Component {
      *  It is called when the user presses the reset button
      */
 
+
     // Create a new empty grid as in ComponentDidMount
     const copygrid = [];
     let counter = 0;
@@ -145,6 +146,15 @@ class Grid extends React.Component {
 
     // Reset the color of nodes in the result path.
     this.state.path.forEach(resetNodeClass);
+
+    // Stop all animations
+    var id = window.setTimeout(function() {}, 0);
+
+    // This hack works bc timer IDs are consecutive integers. So we just need
+    // to get the latest timer id and decrement from it to get all timers.
+    while (id--) {
+        window.clearTimeout(id);
+    }
 
     // Reset the reset of the grid state
     this.setState({
