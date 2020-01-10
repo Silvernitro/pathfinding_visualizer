@@ -55,9 +55,7 @@ class Grid extends React.Component {
 
   handleLongPress(event) {
     if (this.state.addingWalls){
-      this.buttonPressTimer = setTimeout(() => this.setState(prev => ({
-        drawingWalls: true,
-      })), 750);
+      this.setState({ drawingWalls: true });
     }
 	}
 
@@ -77,7 +75,6 @@ class Grid extends React.Component {
       });
     }
   }
-
 
   handleClick(key) {
     if (this.state.addingWalls) {
