@@ -101,11 +101,21 @@ class Grid extends React.Component {
           const graph = new Graph();
           graph.gridtoGraph(this.state.grid);
           const result = graph.shortestPath(this.state.start, this.state.end);
-          if (result === null) {
-            this.setState({
-              phase: 4
+          if (!result[0].length) {
+            console.log("no path found");
+            const noPath = new Promise((resolve, reject) => {
+              resolve(this.animate(result));
+              reject("error");
             });
-            return;
+            noPath.then((success) => {
+              if (success) {
+                this.setState({
+                  phase:4
+                });
+              }
+            }, (failure) => {
+              console.log(failure);
+            });
           }
           // store the paths returned by Dijkstra's Algo
           this.setState({
@@ -230,7 +240,7 @@ class Grid extends React.Component {
 
     // After validating that all promises have been fulfilled (which means we
     // are done animating the search path), start animating the result path
-    Promise.all(promise_array).then(animate_result);
+    return(Promise.all(promise_array).then(animate_result).then(() => true));
   }
 
 
