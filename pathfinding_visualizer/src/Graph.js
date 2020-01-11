@@ -56,8 +56,10 @@ export class Graph {
             }
 
         }
+        // if time to endNode is calculated as infinity, then no path exists from start node to end node
+        // hence path is an returned as an empty array 
         if (times[endNode.name] === Infinity) {
-            return null;
+            return [[], visited];
         }
         let path = [endNode.name];
         let lastVisited = endNode.name;
