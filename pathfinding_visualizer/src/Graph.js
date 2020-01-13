@@ -11,7 +11,7 @@ export class Graph {
   }
 
   addEdge(node1, node2, weight) {
-    this.adjList[node1.name].push({ node: node2, weight: weight });
+    //this.adjList[node1.name].push({ node: node2, weight: weight });
     this.adjList[node2.name].push({ node: node1, weight: weight });
   }
 
@@ -67,25 +67,26 @@ export class Graph {
   gridtoGraph(grid) {
     for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid.length; j++) {
+        let weight = grid[i][j].weight;
         this.addNode(grid[i][j]);
         try {
           if (grid[i - 1][j] !== undefined) {
-            this.addEdge(grid[i - 1][j], grid[i][j], 1);
+            this.addEdge(grid[i - 1][j], grid[i][j], weight);
           }
         } catch (error) {}
         try {
           if (grid[i][j - 1] !== undefined) {
-            this.addEdge(grid[i][j - 1], grid[i][j], 1);
+            this.addEdge(grid[i][j - 1], grid[i][j], weight);
           }
         } catch (error) {}
         try {
           if (grid[i][j + 1] !== undefined) {
-            this.addEdge(grid[i][j + 1], grid[i][j], 1);
+            this.addEdge(grid[i][j + 1], grid[i][j], weight);
           }
         } catch (error) {}
         try {
           if (grid[i + 1][j] !== undefined) {
-            this.addEdge(grid[i + 1][j], grid[i][j], 1);
+            this.addEdge(grid[i + 1][j], grid[i][j], weight);
           }
         } catch (error) {}
       }
