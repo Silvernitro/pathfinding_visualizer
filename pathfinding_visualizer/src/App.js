@@ -1,7 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './App.css';
-import {Graph} from './Graph.js'
+import React from "react";
+import ReactDOM from "react-dom";
+import "./App.css";
+import { Graph } from "./Graph.js";
 
 class Grid extends React.Component {
   constructor(props) {
@@ -16,7 +16,7 @@ class Grid extends React.Component {
       addingWalls: false,
       drawingWalls: false,
       foundPath: []
-    }
+    };
     this.handleClick = this.handleClick.bind(this);
     this.buttonPress = this.buttonPress.bind(this);
     this.handleLongPress = this.handleLongPress.bind(this);
@@ -28,21 +28,21 @@ class Grid extends React.Component {
   componentDidMount() {
     const copygrid = [];
     let counter = 0;
-    for(let i = 0; i < 25; i++) {
+    for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
+        copygrid[i][j] = { name: counter, isWall: false, row: i, col: j };
         counter++;
       }
     }
     this.setState({
-      grid: copygrid,
+      grid: copygrid
     });
   }
 
   buttonPress(event) {
     // method to handle pressing of buttons. (only add wall button currently)
-    const {name, value} = event.target;
+    const { name, value } = event.target;
     if (name === "addingWalls") {
       this.setState(prev => ({
         addingWalls: !prev.addingWalls
@@ -54,15 +54,15 @@ class Grid extends React.Component {
   }
 
   handleLongPress(event) {
-    if (this.state.addingWalls){
+    if (this.state.addingWalls) {
       this.setState({ drawingWalls: true });
     }
-	}
+  }
 
-	handlePressRelease() {
+  handlePressRelease() {
     clearTimeout(this.buttonPressTimer);
     this.setState({
-      drawingWalls: false,
+      drawingWalls: false
     });
   }
 
@@ -71,7 +71,7 @@ class Grid extends React.Component {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
       this.setState({
-        grid:copied,
+        grid: copied
       });
     }
   }
@@ -83,21 +83,24 @@ class Grid extends React.Component {
        */
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
-      this.setState({ grid:copied });
-
+      this.setState({ grid: copied });
     } else {
       /* Else, the user is trying to select a start/end node, or ready to start
        * the search algorithm.
        */
       if (this.state.phase === 1) {
         // set the starting node
-        this.setState({ start: key, phase: 2});
+        this.setState({ start: key, phase: 2 });
       } else if (this.state.phase === 2) {
         // set the end node
-        this.setState({ end: key, phase: 3});
-      } else  {
+        this.setState({ end: key, phase: 3 });
+      } else {
         // start Dijkstra's Algorithm
-        if ((this.state.start !== null && this.state.end !== null) && !this.state.addingWalls) {
+        if (
+          this.state.start !== null &&
+          this.state.end !== null &&
+          !this.state.addingWalls
+        ) {
           const graph = new Graph();
           graph.gridtoGraph(this.state.grid);
           const result = graph.shortestPath(this.state.start, this.state.end);
@@ -107,15 +110,18 @@ class Grid extends React.Component {
               resolve(this.animate(result));
               reject("error");
             });
-            noPath.then((success) => {
-              if (success) {
-                this.setState({
-                  phase:4
-                });
+            noPath.then(
+              success => {
+                if (success) {
+                  this.setState({
+                    phase: 4
+                  });
+                }
+              },
+              failure => {
+                console.log(failure);
               }
-            }, (failure) => {
-              console.log(failure);
-            });
+            );
           }
           // store the paths returned by Dijkstra's Algo
           this.setState({
@@ -125,7 +131,8 @@ class Grid extends React.Component {
 
           // render the search animation
           this.animate(result);
-        } else {}
+        } else {
+        }
       }
     }
   }
@@ -135,14 +142,13 @@ class Grid extends React.Component {
      *  It is called when the user presses the reset button
      */
 
-
     // Create a new empty grid as in ComponentDidMount
     const copygrid = [];
     let counter = 0;
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = {name: counter, isWall: false, row: i, col: j};
+        copygrid[i][j] = { name: counter, isWall: false, row: i, col: j };
         counter++;
       }
     }
@@ -166,7 +172,7 @@ class Grid extends React.Component {
     // This hack works bc timer IDs are consecutive integers. So we just need
     // to get the latest timer id and decrement from it to get all timers.
     while (id--) {
-        window.clearTimeout(id);
+      window.clearTimeout(id);
     }
 
     // Reset the reset of the grid state
@@ -181,7 +187,6 @@ class Grid extends React.Component {
       drawingWalls: false,
       foundPath: []
     });
-
   }
 
   animate(result) {
@@ -211,19 +216,20 @@ class Grid extends React.Component {
       /*  @param {number} The current index of the search_path array being
        *  animated.
        *  @returns {undefined} This function does not return any value
-      */
+       */
 
       var node_div = document.getElementById(search_path[idx]);
       if (node_div.className !== "Start" && node_div.className !== "End") {
         node_div.className = "Visited";
-      } else {}
+      } else {
+      }
     }
 
     function animate_result() {
       //  Animates the result path found by Dijkstra's Algo.
 
       for (let i = 0; i < result_path.length; i++) {
-        setTimeout( () => {
+        setTimeout(() => {
           var node_div = document.getElementById(result_path[i]);
           if (node_div.className === "Start" || node_div.className === "End") {
           } else {
@@ -240,15 +246,16 @@ class Grid extends React.Component {
 
     // After validating that all promises have been fulfilled (which means we
     // are done animating the search path), start animating the result path
-    return(Promise.all(promise_array).then(animate_result).then(() => true));
+    return Promise.all(promise_array)
+      .then(animate_result)
+      .then(() => true);
   }
 
-
-
   render() {
-    const rows = this.state.grid.map((row) =>
+    const rows = this.state.grid.map(row => (
       <div className="RowContainer">
-        { row.map( (element) => <Node
+        {row.map(element => (
+          <Node
             key={element.name}
             element={element}
             isStart={this.state.start.name === element.name}
@@ -258,24 +265,30 @@ class Grid extends React.Component {
             onMouseDown={this.handleLongPress}
             onMouseUp={this.handlePressRelease}
             onMouseOver={this.handleMouseOver}
-            />) }
-      </div>);
+          />
+        ))}
+      </div>
+    ));
 
-
-    return(
+    return (
       <div className="GameContainer">
-        <StatusTitle addingWalls={this.state.addingWalls} phase={this.state.phase} />
+        <StatusTitle
+          addingWalls={this.state.addingWalls}
+          phase={this.state.phase}
+        />
         {rows}
-        <Options buttonPress={this.buttonPress} addingWalls={this.state.addingWalls} />
+        <Options
+          buttonPress={this.buttonPress}
+          addingWalls={this.state.addingWalls}
+        />
         <ResetButton buttonPress={this.buttonPress} />
       </div>
-
-    )
+    );
   }
 }
 
 class Node extends React.Component {
-  render () {
+  render() {
     let node_state;
 
     if (this.props.isStart) {
@@ -289,23 +302,24 @@ class Node extends React.Component {
     }
 
     return (
-      <div className={ node_state }
+      <div
+        className={node_state}
         onClick={() => this.props.onClick(this.props.element)}
         id={this.props.element.name}
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
-        onMouseOver={() => this.props.onMouseOver(this.props.element)}>
-      </div>
-    )
+        onMouseOver={() => this.props.onMouseOver(this.props.element)}
+      ></div>
+    );
   }
 }
 
 function Options(props) {
-  return(
+  return (
     <button onClick={props.buttonPress} name="addingWalls">
       {props.addingWalls ? "Done" : "Add Walls"}
     </button>
-  )
+  );
 }
 
 function ResetButton(props) {
@@ -313,7 +327,7 @@ function ResetButton(props) {
     <button onClick={props.buttonPress} name="resetButton">
       Reset
     </button>
-  )
+  );
 }
 
 function StatusTitle(props) {
@@ -337,14 +351,12 @@ function StatusTitle(props) {
   } else if (props.phase === 2) {
     title_string = "Click to choose the end node";
   } else if (props.phase === 4) {
-    title_string = "No path found!"
+    title_string = "No path found!";
   } else {
     title_string = "Click anywhere on the grid to start the search algorithm";
   }
 
-  return <h1 className="StatusTitle">{title_string}</h1>
+  return <h1 className="StatusTitle">{title_string}</h1>;
 }
-
-
 
 export default Grid;
