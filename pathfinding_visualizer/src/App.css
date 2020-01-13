@@ -10,7 +10,7 @@
 
 .GameContainer {
   text-align: center;
-  width:80%;
+  width: 80%;
   margin: 5% 10% 5% 10%;
   display: inline-block;
 }
@@ -32,7 +32,7 @@
   width: 20px;
   height: 20px;
   display: inline-block;
-  text-align:center;
+  text-align: center;
   background-repeat: no-repeat;
   background-position: center;
   background-image: url(./Styling/map-marker-alt-solid.svg);
@@ -51,7 +51,7 @@
   width: 20px;
   height: 20px;
   display: inline-block;
-  background-color: #FAFF00;
+  background-color: #faff00;
 }
 
 .Visited {

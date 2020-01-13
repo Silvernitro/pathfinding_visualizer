@@ -57,7 +57,7 @@ class Grid extends React.Component {
         drawingWeights: false
       }));
     } else if (name === "resetButton") {
-      this.setState()
+      this.setState();
       this.resetGrid();
     } else if (name === "addingWeights") {
       this.setState(prev => ({
@@ -167,7 +167,6 @@ class Grid extends React.Component {
     }
   }
 
-
   resetGrid() {
     /*  This function resets the entire state of the search grid and algorithm.
      *  It is called when the user presses the reset button
@@ -179,7 +178,13 @@ class Grid extends React.Component {
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = { name: counter, isWall: false, row: i, col: j, weight: 1};
+        copygrid[i][j] = {
+          name: counter,
+          isWall: false,
+          row: i,
+          col: j,
+          weight: 1
+        };
         resetNodeClass(counter);
         counter++;
       }
@@ -331,9 +336,16 @@ class Node extends React.Component {
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
         onMouseOver={() => this.props.onMouseOver(this.props.element)}
-      > {this.props.element.weight > 1 && !this.props.element.isEnd && 
-          !this.props.element.isStart ? <span> {this.props.element.weight} </span> 
-          : <span className="HideThis"> 1 </span>} </div>
+      >
+        {" "}
+        {this.props.element.weight > 1 &&
+        !this.props.element.isEnd &&
+        !this.props.element.isStart ? (
+          <span> {this.props.element.weight} </span>
+        ) : (
+          <span className="HideThis"> 1 </span>
+        )}{" "}
+      </div>
     );
   }
 }
@@ -350,14 +362,14 @@ function Options(props) {
       <button onClick={props.onChange} name="addingWeights">
         {props.addingWeights ? "Done" : "Add Weights"}
       </button>
-      {props.addingWeights ? 
+      {props.addingWeights ? (
         <select onChange={props.onChange} name="weightSelector">
-        <option value="1"> 1 </option>
-        <option value="2"> 2 </option>
-        <option value="3"> 3 </option>
-        <option value="4"> 4 </option>
-      </select> : null }
-      
+          <option value="1"> 1 </option>
+          <option value="2"> 2 </option>
+          <option value="3"> 3 </option>
+          <option value="4"> 4 </option>
+        </select>
+      ) : null}
     </div>
   );
 }
