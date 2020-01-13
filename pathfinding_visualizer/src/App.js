@@ -10,11 +10,14 @@ class Grid extends React.Component {
       start: {},
       end: {},
       phase: 1,
+      addingWeights: false,
+      drawingWeights: false,
+      weightValue: 1,
       addingWalls: false,
       drawingWalls: false
     };
     this.handleClick = this.handleClick.bind(this);
-    this.buttonPress = this.buttonPress.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.handleLongPress = this.handleLongPress.bind(this);
     this.handlePressRelease = this.handlePressRelease.bind(this);
     this.handleMouseOver = this.handleMouseOver.bind(this);
@@ -32,6 +35,7 @@ class Grid extends React.Component {
           isWall: false,
           isStart: false,
           isEnd: false,
+          weight: 1,
           row: i,
           col: j
         };
@@ -43,38 +47,57 @@ class Grid extends React.Component {
     });
   }
 
-  buttonPress(event) {
+  handleChange(event) {
     // method to handle pressing of buttons. (only add wall button currently)
     const { name, value } = event.target;
     if (name === "addingWalls") {
       this.setState(prev => ({
-        addingWalls: !prev.addingWalls
+        addingWalls: !prev.addingWalls,
+        addingWeights: false,
+        drawingWeights: false
       }));
     } else if (name === "resetButton") {
+      this.setState()
       this.resetGrid();
+    } else if (name === "addingWeights") {
+      this.setState(prev => ({
+        addingWeights: !prev.addingWeights,
+        addingWalls: false,
+        drawingWalls: false
+      }));
+    } else if (name === "weightSelector") {
+      this.setState({
+        weightValue: parseInt(value)
+      });
     }
   }
 
   handleLongPress(event) {
     if (this.state.addingWalls) {
       this.setState({ drawingWalls: true });
+    } else if (this.state.addingWeights) {
+      this.setState({ drawingWeights: true });
     }
   }
 
   handlePressRelease() {
     this.setState({
-      drawingWalls: false
+      drawingWalls: false,
+      drawingWeights: false
     });
   }
 
   handleMouseOver(key) {
+    const copied = this.state.grid.slice();
     if (this.state.drawingWalls) {
-      const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
-      this.setState({
-        grid: copied
-      });
+    } else if (this.state.drawingWeights) {
+      copied[key.row][key.col].weight = this.state.weightValue;
     }
+
+    this.setState({
+      grid: copied
+    });
   }
 
   handleClick(key) {
@@ -84,6 +107,10 @@ class Grid extends React.Component {
        */
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
+      this.setState({ grid: copied });
+    } else if (this.state.addingWeights) {
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].weight = this.state.weightValue;
       this.setState({ grid: copied });
     } else {
       /* Else, the user is trying to select a start/end node, or ready to start
@@ -140,6 +167,7 @@ class Grid extends React.Component {
     }
   }
 
+
   resetGrid() {
     /*  This function resets the entire state of the search grid and algorithm.
      *  It is called when the user presses the reset button
@@ -151,7 +179,7 @@ class Grid extends React.Component {
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
       for (let j = 0; j < 25; j++) {
-        copygrid[i][j] = { name: counter, isWall: false, row: i, col: j };
+        copygrid[i][j] = { name: counter, isWall: false, row: i, col: j, weight: 1};
         resetNodeClass(counter);
         counter++;
       }
@@ -178,7 +206,10 @@ class Grid extends React.Component {
       grid: copygrid,
       phase: 1,
       addingWalls: false,
-      drawingWalls: false
+      drawingWalls: false,
+      drawingWeights: false,
+      addingWeights: false,
+      weightValue: 1
     });
   }
 
@@ -264,12 +295,14 @@ class Grid extends React.Component {
       <div className="GameContainer">
         <StatusTitle
           addingWalls={this.state.addingWalls}
+          addingWeights={this.state.addingWeights}
           phase={this.state.phase}
         />
         {rows}
         <Options
-          buttonPress={this.buttonPress}
           addingWalls={this.state.addingWalls}
+          onChange={this.handleChange}
+          addingWeights={this.state.addingWeights}
         />
       </div>
     );
@@ -298,7 +331,9 @@ class Node extends React.Component {
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
         onMouseOver={() => this.props.onMouseOver(this.props.element)}
-      ></div>
+      > {this.props.element.weight > 1 && !this.props.element.isEnd && 
+          !this.props.element.isStart ? <span> {this.props.element.weight} </span> 
+          : <span className="HideThis"> 1 </span>} </div>
     );
   }
 }
@@ -306,12 +341,23 @@ class Node extends React.Component {
 function Options(props) {
   return (
     <div>
-      <button onClick={props.buttonPress} name="addingWalls">
+      <button onClick={props.onChange} name="addingWalls">
         {props.addingWalls ? "Done" : "Add Walls"}
       </button>
-      <button onClick={props.buttonPress} name="resetButton">
+      <button onClick={props.onChange} name="resetButton">
         Reset
       </button>
+      <button onClick={props.onChange} name="addingWeights">
+        {props.addingWeights ? "Done" : "Add Weights"}
+      </button>
+      {props.addingWeights ? 
+        <select onChange={props.onChange} name="weightSelector">
+        <option value="1"> 1 </option>
+        <option value="2"> 2 </option>
+        <option value="3"> 3 </option>
+        <option value="4"> 4 </option>
+      </select> : null }
+      
     </div>
   );
 }
@@ -332,6 +378,8 @@ function StatusTitle(props) {
 
   if (props.addingWalls) {
     title_string = "Click and hold to draw walls on the grid";
+  } else if (props.addingWeights) {
+    title_string = "Click and hold to add weights on the grid";
   } else if (props.phase === 1) {
     title_string = "Click to choose the starting node";
   } else if (props.phase === 2) {

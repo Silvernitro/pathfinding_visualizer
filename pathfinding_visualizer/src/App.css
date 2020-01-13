@@ -2,6 +2,9 @@
   border: 0.5px solid rgb(0, 153, 255);
   width: 20px;
   height: 20px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  text-align: center;
   display: inline-block;
 }
 
@@ -65,4 +68,8 @@
   height: 20px;
   display: inline-block;
   background-color: black;
+}
+
+.HideThis {
+  visibility: hidden;
 }
