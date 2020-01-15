@@ -73,6 +73,7 @@ class Grid extends React.Component {
   }
 
   handleLongPress(event) {
+    event.preventDefault();
     if (this.state.addingWalls) {
       this.setState({ drawingWalls: true });
     } else if (this.state.addingWeights) {
@@ -87,17 +88,22 @@ class Grid extends React.Component {
     });
   }
 
-  handleMouseOver(key) {
-    const copied = this.state.grid.slice();
-    if (this.state.drawingWalls) {
-      copied[key.row][key.col].isWall = true;
-    } else if (this.state.drawingWeights) {
-      copied[key.row][key.col].weight = this.state.weightValue;
-    }
+  handleMouseOver(event) {
+    event.preventDefault();
+    return event_element => {
+      const copied = this.state.grid.slice();
+      if (this.state.drawingWalls) {
+        copied[event_element.row][event_element.col].isWall = true;
+      } else if (this.state.drawingWeights) {
+        copied[event_element.row][
+          event_element.col
+        ].weight = this.state.weightValue;
+      }
 
-    this.setState({
-      grid: copied
-    });
+      this.setState({
+        grid: copied
+      });
+    };
   }
 
   handleClick(key) {
@@ -335,16 +341,15 @@ class Node extends React.Component {
         id={this.props.element.name}
         onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
-        onMouseOver={() => this.props.onMouseOver(this.props.element)}
+        onMouseOver={event => this.props.onMouseOver(event)(this.props.element)}
       >
-        {" "}
         {this.props.element.weight > 1 &&
         !this.props.element.isEnd &&
         !this.props.element.isStart ? (
           <span> {this.props.element.weight} </span>
         ) : (
           <span className="HideThis"> 1 </span>
-        )}{" "}
+        )}
       </div>
     );
   }
