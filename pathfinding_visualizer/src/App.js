@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { Graph } from "./Graph.js";
+import { make_random_grid } from "./random_walls.js";
 
 class Grid extends React.Component {
   constructor(props) {
@@ -17,6 +18,7 @@ class Grid extends React.Component {
       drawingWalls: false,
       isErasing: [false, false]
     };
+
     this.handleClick = this.handleClick.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleLongPress = this.handleLongPress.bind(this);
@@ -79,6 +81,10 @@ class Grid extends React.Component {
         addingWalls: false,
         drawingWalls: false
       }));
+    } else if (name === "randomButton") {
+      this.setState({
+        grid: make_random_grid(this.state.start.name, this.state.end.name)
+      });
     }
   }
 
@@ -204,7 +210,7 @@ class Grid extends React.Component {
     let counter = 0;
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
-      for (let j = 0; j < 25; j++) {
+      for (let j = 0; j < 35; j++) {
         copygrid[i][j] = {
           name: counter,
           isWall: false,
@@ -237,6 +243,8 @@ class Grid extends React.Component {
     this.setState({
       grid: copygrid,
       phase: 1,
+      start: {},
+      end: {},
       addingWalls: false,
       drawingWalls: false,
       drawingWeights: false,
@@ -400,6 +408,9 @@ function Options(props) {
           <option value="4"> 4 </option>
         </select>
       ) : null}
+      <button onClick={props.onChange} name="randomButton">
+        Randomize walls
+      </button>
     </div>
   );
 }
