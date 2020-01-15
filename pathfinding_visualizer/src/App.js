@@ -14,7 +14,8 @@ class Grid extends React.Component {
       drawingWeights: false,
       weightValue: 1,
       addingWalls: false,
-      drawingWalls: false
+      drawingWalls: false,
+      isErasing: [false, false]
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -29,7 +30,7 @@ class Grid extends React.Component {
     let counter = 0;
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
-      for (let j = 0; j < 25; j++) {
+      for (let j = 0; j < 35; j++) {
         copygrid[i][j] = {
           name: counter,
           isWall: false,
@@ -54,21 +55,30 @@ class Grid extends React.Component {
       this.setState(prev => ({
         addingWalls: !prev.addingWalls,
         addingWeights: false,
-        drawingWeights: false
+        drawingWeights: false,
+        isErasing: [false, false]
       }));
     } else if (name === "resetButton") {
-      this.setState();
       this.resetGrid();
     } else if (name === "addingWeights") {
       this.setState(prev => ({
         addingWeights: !prev.addingWeights,
         addingWalls: false,
-        drawingWalls: false
+        drawingWalls: false,
+        isErasing: [false, false]
       }));
     } else if (name === "weightSelector") {
       this.setState({
         weightValue: parseInt(value)
       });
+    } else if (name === "eraseButton") {
+      this.setState(prev => ({
+        isErasing: [!prev.isErasing[0], false],
+        addingWeights: false,
+        drawingWeights: false,
+        addingWalls: false,
+        drawingWalls: false
+      }));
     }
   }
 
@@ -78,14 +88,17 @@ class Grid extends React.Component {
       this.setState({ drawingWalls: true });
     } else if (this.state.addingWeights) {
       this.setState({ drawingWeights: true });
+    } else if (this.state.isErasing[0]) {
+      this.setState({ isErasing: [true, true] });
     }
   }
 
   handlePressRelease() {
-    this.setState({
+    this.setState(prev => ({
       drawingWalls: false,
-      drawingWeights: false
-    });
+      drawingWeights: false,
+      isErasing: [prev.isErasing[0], false]
+    }));
   }
 
   handleMouseOver(event) {
@@ -98,6 +111,9 @@ class Grid extends React.Component {
         copied[event_element.row][
           event_element.col
         ].weight = this.state.weightValue;
+      } else if (this.state.isErasing[1]) {
+        copied[event_element.row][event_element.col].weight = 1;
+        copied[event_element.row][event_element.col].isWall = false;
       }
 
       this.setState({
@@ -117,6 +133,11 @@ class Grid extends React.Component {
     } else if (this.state.addingWeights) {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].weight = this.state.weightValue;
+      this.setState({ grid: copied });
+    } else if (this.state.isErasing[0]) {
+      const copied = this.state.grid.slice();
+      copied[key.row][key.col].weight = 1;
+      copied[key.row][key.col].isWall = false;
       this.setState({ grid: copied });
     } else {
       /* Else, the user is trying to select a start/end node, or ready to start
@@ -314,6 +335,7 @@ class Grid extends React.Component {
           addingWalls={this.state.addingWalls}
           onChange={this.handleChange}
           addingWeights={this.state.addingWeights}
+          isErasing={this.state.isErasing[0]}
         />
       </div>
     );
@@ -363,6 +385,9 @@ function Options(props) {
       </button>
       <button onClick={props.onChange} name="resetButton">
         Reset
+      </button>
+      <button onClick={props.onChange} name="eraseButton">
+        {props.isErasing ? "Done" : "Erase"}
       </button>
       <button onClick={props.onChange} name="addingWeights">
         {props.addingWeights ? "Done" : "Add Weights"}

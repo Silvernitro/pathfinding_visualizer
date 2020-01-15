@@ -73,3 +73,48 @@
 .HideThis {
   visibility: hidden;
 }
+
+button {
+  /* font */
+  color: black;
+  font-size: 15px;
+  font-family: helvetica;
+
+  /* remove blue underline */
+  text-decoration: none;
+
+  /* border */
+  border: 2px solid black;
+  border-radius: 20px;
+
+  /* transitions */
+  transition-duration: 0.2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+
+  /* other */
+  background-color: white;
+  padding: 2px 15px;
+  margin-top: 10px;
+  height: fit-content;
+}
+
+button:hover {
+  /* update text color and background color */
+  color: white;
+  background-color: black;
+
+  /* transitions */
+  transition-duration: 0.2s;
+  -webkit-transition-duration: 0.11s;
+  -moz-transition-duration: 0.2s;
+}
+
+.variation-a,
+.variation-b {
+  display: inline-block;
+  height: 100px;
+  width: 100%;
+  text-align: center;
+  padding-top: 50px;
+}
