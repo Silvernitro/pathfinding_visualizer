@@ -66,7 +66,7 @@ export class Graph {
 
   gridtoGraph(grid) {
     for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid.length; j++) {
+      for (let j = 0; j < grid[0].length; j++) {
         let weight = grid[i][j].weight;
         this.addNode(grid[i][j]);
         try {
