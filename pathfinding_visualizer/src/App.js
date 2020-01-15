@@ -30,7 +30,7 @@ class Grid extends React.Component {
     let counter = 0;
     for (let i = 0; i < 25; i++) {
       copygrid[i] = [];
-      for (let j = 0; j < 25; j++) {
+      for (let j = 0; j < 35; j++) {
         copygrid[i][j] = {
           name: counter,
           isWall: false,
