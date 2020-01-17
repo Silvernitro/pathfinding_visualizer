@@ -5,21 +5,21 @@
   padding-top: 0px;
   padding-bottom: 0px;
   text-align: center;
-  display: inline-block;
 }
 
 .GameContainer {
-  text-align: center;
   width: 80%;
   margin: 5% 10% 5% 10%;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  flex-flow: column;
 }
 
 .RowContainer {
-  width: 80%;
+  display: flex;
   height: 20px;
-  margin: 0px 10% 0px 10%;
-  text-align: center;
+  justify-content: center;
+  align-content: center;
 }
 
 .StatusTitle {
@@ -74,6 +74,13 @@
   visibility: hidden;
 }
 
+.Options {
+  display: flex;
+  flex-flow: row wrap;
+  align-content: stretch;
+  margin-top: 10px;
+}
+
 button {
   /* font */
   color: black;
@@ -95,7 +102,6 @@ button {
   /* other */
   background-color: white;
   padding: 2px 15px;
-  margin-top: 10px;
   height: fit-content;
 }
 
@@ -110,11 +116,11 @@ button:hover {
   -moz-transition-duration: 0.2s;
 }
 
-.variation-a,
-.variation-b {
-  display: inline-block;
-  height: 100px;
-  width: 100%;
-  text-align: center;
-  padding-top: 50px;
+select {
+  width: 70px;
+  font-family: Helvetica;
+  font-size: 15px;
+  background-color: white;
+  border-radius: 0;
+  padding-left: 10px;
 }
