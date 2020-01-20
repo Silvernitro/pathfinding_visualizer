@@ -363,7 +363,7 @@ class Node extends React.Component {
 
 function Options(props) {
   return (
-    <div className="Options">
+    <div>
       <button onClick={props.onChange} name="addingWalls">
         {props.addingWalls ? "Done" : "Add Walls"}
       </button>
