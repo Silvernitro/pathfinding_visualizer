@@ -17,6 +17,5 @@ export function make_random_grid(start, end) {
       counter++;
     }
   }
-  console.log(copygrid);
   return copygrid;
 }

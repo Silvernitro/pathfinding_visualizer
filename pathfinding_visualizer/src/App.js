@@ -11,12 +11,9 @@ class Grid extends React.Component {
       start: {},
       end: {},
       phase: 1,
-      addingWeights: false,
-      drawingWeights: false,
+      gridState: "normal",
+      mouseOverState: "normal",
       weightValue: 1,
-      addingWalls: false,
-      drawingWalls: false,
-      isErasing: [false, false]
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -53,34 +50,17 @@ class Grid extends React.Component {
   handleChange(event) {
     // method to handle pressing of buttons. (only add wall button currently)
     const { name, value } = event.target;
-    if (name === "addingWalls") {
+    if (name === "addingWalls" || name === "addingWeights" || name === "eraseButton") {
       this.setState(prev => ({
-        addingWalls: !prev.addingWalls,
-        addingWeights: false,
-        drawingWeights: false,
-        isErasing: [false, false]
-      }));
+        gridState: prev.gridState === name ? "normal" : name,
+        mouseOverState: "normal"
+      }))
     } else if (name === "resetButton") {
       this.resetGrid();
-    } else if (name === "addingWeights") {
-      this.setState(prev => ({
-        addingWeights: !prev.addingWeights,
-        addingWalls: false,
-        drawingWalls: false,
-        isErasing: [false, false]
-      }));
     } else if (name === "weightSelector") {
       this.setState({
         weightValue: parseInt(value)
       });
-    } else if (name === "eraseButton") {
-      this.setState(prev => ({
-        isErasing: [!prev.isErasing[0], false],
-        addingWeights: false,
-        drawingWeights: false,
-        addingWalls: false,
-        drawingWalls: false
-      }));
     } else if (name === "randomButton") {
       this.setState({
         grid: make_random_grid(this.state.start.name, this.state.end.name)
@@ -90,34 +70,32 @@ class Grid extends React.Component {
 
   handleLongPress(event) {
     event.preventDefault();
-    if (this.state.addingWalls) {
-      this.setState({ drawingWalls: true });
-    } else if (this.state.addingWeights) {
-      this.setState({ drawingWeights: true });
-    } else if (this.state.isErasing[0]) {
-      this.setState({ isErasing: [true, true] });
+    if (this.state.gridState === "addingWalls") {
+      this.setState({ mouseOverState: "drawingWalls" });
+    } else if (this.state.gridState === "addingWeights") {
+      this.setState({ mouseOverState: "drawingWeights" });
+    } else if (this.state.gridState === "eraseButton") {
+      this.setState({ mouseOverState: "erasing" });
     }
   }
 
   handlePressRelease() {
-    this.setState(prev => ({
-      drawingWalls: false,
-      drawingWeights: false,
-      isErasing: [prev.isErasing[0], false]
-    }));
+    this.setState({
+      mouseOverState: "normal"
+    })
   }
 
   handleMouseOver(event) {
     event.preventDefault();
     return event_element => {
       const copied = this.state.grid.slice();
-      if (this.state.drawingWalls) {
+      if (this.state.mouseOverState === "drawingWalls") {
         copied[event_element.row][event_element.col].isWall = true;
-      } else if (this.state.drawingWeights) {
+      } else if (this.state.mouseOverState === "drawingWeights") {
         copied[event_element.row][
           event_element.col
         ].weight = this.state.weightValue;
-      } else if (this.state.isErasing[1]) {
+      } else if (this.state.mouseOverState === "erasing") {
         copied[event_element.row][event_element.col].weight = 1;
         copied[event_element.row][event_element.col].isWall = false;
       }
@@ -129,18 +107,18 @@ class Grid extends React.Component {
   }
 
   handleClick(key) {
-    if (this.state.addingWalls) {
+    if (this.state.gridState === "addingWalls") {
       /*  If the user is in "Add Walls" mode, allow the user to paint
        *  individual nodes by clicking on them.
        */
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
       this.setState({ grid: copied });
-    } else if (this.state.addingWeights) {
+    } else if (this.state.gridState === "addingWeights") {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].weight = this.state.weightValue;
       this.setState({ grid: copied });
-    } else if (this.state.isErasing[0]) {
+    } else if (this.state.gridState === "eraseButton") {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].weight = 1;
       copied[key.row][key.col].isWall = false;
@@ -245,10 +223,8 @@ class Grid extends React.Component {
       phase: 1,
       start: {},
       end: {},
-      addingWalls: false,
-      drawingWalls: false,
-      drawingWeights: false,
-      addingWeights: false,
+      gridState: "normal",
+      mouseOverState: "normal",
       weightValue: 1
     });
   }
@@ -340,10 +316,10 @@ class Grid extends React.Component {
         />
         {rows}
         <Options
-          addingWalls={this.state.addingWalls}
+          addingWalls={this.state.gridState === "addingWalls"}
           onChange={this.handleChange}
-          addingWeights={this.state.addingWeights}
-          isErasing={this.state.isErasing[0]}
+          addingWeights={this.state.gridState === "addingWeights"}
+          isErasing={this.state.gridState === "eraseButton"}
         />
       </div>
     );
