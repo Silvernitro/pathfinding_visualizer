@@ -3,6 +3,9 @@ import "./App.css";
 import { Graph } from "./Graph.js";
 import { make_random_grid } from "./random_walls.js";
 
+/**
+ * The main component to display the grid.
+ */
 class Grid extends React.Component {
   constructor(props) {
     super(props);
@@ -24,12 +27,19 @@ class Grid extends React.Component {
     this.resetGrid = this.resetGrid.bind(this);
   }
 
+  /**
+   * Initialize an empty grid of nodes when component mounts.
+   */
   componentDidMount() {
+    // temporary array to contain the grid
     const copygrid = [];
     let counter = 0;
+
     for (let i = 0; i < 25; i++) {
+      // create an array for each row
       copygrid[i] = [];
       for (let j = 0; j < 35; j++) {
+        // create an empty node
         copygrid[i][j] = {
           name: counter,
           isWall: false,
@@ -42,15 +52,24 @@ class Grid extends React.Component {
         counter++;
       }
     }
+
+    // set the empty grid created to be the current state
     this.setState({
       grid: copygrid
     });
   }
 
+  /**
+   * Handles events when buttons in the Options component below the grid are clicked.
+   * @param {event} event The event fired by the click on button.
+   */
   handleChange(event) {
-    // method to handle pressing of buttons. (only add wall button currently)
+    // get the button that was clicked
     const { name, value } = event.target;
+
     if (name === "addingWalls" || name === "addingWeights" || name === "eraseButton") {
+      // reset the gridState if we are alr in one of these modes. Else change
+      // to that mode.
       this.setState(prev => ({
         gridState: prev.gridState === name ? "normal" : name,
         mouseOverState: "normal"
@@ -58,18 +77,27 @@ class Grid extends React.Component {
     } else if (name === "resetButton") {
       this.resetGrid();
     } else if (name === "weightSelector") {
+      // weightValue state keeps track of what weight we are curr adding
       this.setState({
         weightValue: parseInt(value)
       });
     } else if (name === "randomButton") {
+      // replace the curr grid state with a new randomized grid
       this.setState({
         grid: make_random_grid(this.state.start.name, this.state.end.name)
       });
     }
   }
 
+  /**
+   * Handles the activation of "drawing" mode.
+   * @param {event} event The longpress event on any node.
+   */
   handleLongPress(event) {
+    // prevent the default highlighting behaviour
     event.preventDefault();
+
+    // update the mouseOver state depending on what we are drawing
     if (this.state.gridState === "addingWalls") {
       this.setState({ mouseOverState: "drawingWalls" });
     } else if (this.state.gridState === "addingWeights") {
@@ -79,33 +107,56 @@ class Grid extends React.Component {
     }
   }
 
+  /**
+   * Resets the mouseOver state once we lift the mouse button after drawing
+   */
   handlePressRelease() {
     this.setState({
       mouseOverState: "normal"
     })
   }
 
+  /**
+   * Draws on the grid as user click and drags.
+   * @param {event} event The mouseover event when the cursor enters the div of
+   * the node.
+   * @returns {function} A function that takes in the Node obj stored in each node.
+   */
   handleMouseOver(event) {
     event.preventDefault();
+
+    // We want to update the node obj associated with the div that fired the
+    // event.
     return event_element => {
+      // make a copy of our current grid state to work on.
       const copied = this.state.grid.slice();
+
+      // check what drawing mode we are in
       if (this.state.mouseOverState === "drawingWalls") {
+        // mark the node moused-over as a wall
         copied[event_element.row][event_element.col].isWall = true;
       } else if (this.state.mouseOverState === "drawingWeights") {
+        // update the moused-over node's weight
         copied[event_element.row][
           event_element.col
         ].weight = this.state.weightValue;
       } else if (this.state.mouseOverState === "erasing") {
+        // reset both the weight and wall states of the node
         copied[event_element.row][event_element.col].weight = 1;
         copied[event_element.row][event_element.col].isWall = false;
       }
 
+      // update with the new grid
       this.setState({
         grid: copied
       });
     };
   }
 
+  /**
+   * Handles any mouse clicks anywhere on the grid (at any node).
+   * @param {Object} The node obj associated with the clicked div.
+   */
   handleClick(key) {
     if (this.state.gridState === "addingWalls") {
       /*  If the user is in "Add Walls" mode, allow the user to paint
@@ -114,19 +165,29 @@ class Grid extends React.Component {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
       this.setState({ grid: copied });
+
     } else if (this.state.gridState === "addingWeights") {
+      /*  If the user is in "Add Weights" mode, allow the user to paint
+       *  individual nodes by clicking on them.
+       */
       const copied = this.state.grid.slice();
       copied[key.row][key.col].weight = this.state.weightValue;
       this.setState({ grid: copied });
+
     } else if (this.state.gridState === "eraseButton") {
+      /*  If the user is in "Erase" mode, allow the user to erase
+       *  individual nodes by clicking on them.
+       */
       const copied = this.state.grid.slice();
+
+      // reset these properties of the node object
       copied[key.row][key.col].weight = 1;
       copied[key.row][key.col].isWall = false;
       this.setState({ grid: copied });
+
     } else {
-      /* Else, the user is trying to select a start/end node, or ready to start
-       * the search algorithm.
-       */
+      // Else, the user is trying to select a start/end node, or ready to start
+      // the search algorithm.
       if (this.state.phase === 1) {
         // set the starting node
         const copied = this.state.grid.slice();
@@ -134,6 +195,7 @@ class Grid extends React.Component {
         this.setState({
           grid: copied,
           start: copied[key.row][key.col],
+          // increment to the next phase to add the end node
           phase: 2
         });
       } else if (this.state.phase === 2) {
@@ -143,19 +205,31 @@ class Grid extends React.Component {
         this.setState({
           grid: copied,
           end: copied[key.row][key.col],
+          // increment to next phase to start the algo
           phase: 3
         });
       } else {
         // start Dijkstra's Algorithm
         if (!this.state.addingWalls) {
+          // create a new Graph instance
           const graph = new Graph();
+
+          // read the current grid into the graph
           graph.gridtoGraph(this.state.grid);
+
+          // find the shortest path
           const result = graph.shortestPath(this.state.start, this.state.end);
+
           if (!result[0].length) {
+            // if there was no result found, create a promise to wait for the
+            // searching animation to complete
             const noPath = new Promise((resolve, reject) => {
               resolve(this.animate(result));
               reject("error");
             });
+
+            // After the searching animation is done, increment the phase
+            // reflect that no result was found.
             noPath.then(
               success => {
                 if (success) {
@@ -178,11 +252,11 @@ class Grid extends React.Component {
     }
   }
 
+  /**
+   * This function resets the entire state of the search grid and algorithm.
+   * It is called when the user presses the reset button.
+   */
   resetGrid() {
-    /*  This function resets the entire state of the search grid and algorithm.
-     *  It is called when the user presses the reset button
-     */
-
     // Create a new empty grid as in ComponentDidMount
     const copygrid = [];
     let counter = 0;
@@ -201,9 +275,9 @@ class Grid extends React.Component {
       }
     }
 
+    // This function resets the class of the give node (by id) to .Node
+    // It is used to un-color colored nodes.
     function resetNodeClass(value) {
-      // This function resets the class of the give node (by id) to .Node
-      // It is used to un-color colored nodes.
       var node_div = document.getElementById(value);
       node_div.className = "Node";
     }
@@ -229,17 +303,15 @@ class Grid extends React.Component {
     });
   }
 
+  /** This is the main animation function.
+   *  It animates both the search path and result path found by Dijkstra's
+   *  Algo.
+   *
+   *  @param {Array<number[]>} an array where idx=0 is the search path and
+   *  idx=1 is the result path.
+   *  @return {undefined} this function does not return a value
+   */
   animate(result) {
-    /* This is the main animation function.
-     * It animates both the search path and result path found by Dijkstra's
-     * Algo.
-     */
-
-    /* @param {Array.<number[]>} an array where idx=0 is the search path and
-     *  idx=1 is the result path.
-     *
-     * @return {undefined} this function does not return a value
-     */
     const search_path = result[1];
     const result_path = result[0];
 
@@ -251,13 +323,11 @@ class Grid extends React.Component {
     // search path
     const promise_array = [];
 
+    /** Colors the node specified in the search_path as visited.
+     *  @param {number} The current index of the search_path array being
+     *  animated.
+     */
     function animate_search(idx) {
-      //  Animates the search path that Dijkstra's Algo takes.
-      /*  @param {number} The current index of the search_path array being
-       *  animated.
-       *  @returns {undefined} This function does not return any value
-       */
-
       var node_div = document.getElementById(search_path[idx]);
       if (node_div.className !== "Start" && node_div.className !== "End") {
         node_div.className = "Visited";
@@ -265,9 +335,11 @@ class Grid extends React.Component {
       }
     }
 
+    /**
+     * Animates the result path that Dijkstra's Algo found.
+     */
     function animate_result() {
-      //  Animates the result path found by Dijkstra's Algo.
-
+      // begin iterating through the result path found
       for (let i = 0; i < result_path.length; i++) {
         setTimeout(() => {
           var node_div = document.getElementById(result_path[i]);
@@ -281,6 +353,8 @@ class Grid extends React.Component {
 
     // start animating the search path
     for (let i = 0; i < search_path.length; i++) {
+      // for each node we animate, wrap it in the wait promise wrapper, then
+      // push it to an array of promises.
       promise_array.push(wait(10 * i).then(() => animate_search(i)));
     }
 
@@ -330,6 +404,7 @@ class Node extends React.Component {
   render() {
     let node_state;
 
+    // this.props.element is the Node object of the component
     if (this.props.element.isStart) {
       node_state = "Start";
     } else if (this.props.element.isEnd) {
