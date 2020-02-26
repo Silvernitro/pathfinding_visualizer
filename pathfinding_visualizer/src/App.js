@@ -3,9 +3,7 @@ import "./App.css";
 import { Graph } from "./Graph.js";
 import { make_random_grid } from "./random_walls.js";
 
-/**
- * The main component to display the grid.
- */
+/** * The main component to display the grid.  */
 class Grid extends React.Component {
   constructor(props) {
     super(props);
@@ -16,7 +14,7 @@ class Grid extends React.Component {
       phase: 1,
       gridState: "normal",
       mouseOverState: "normal",
-      weightValue: 1,
+      weightValue: 1
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -67,13 +65,17 @@ class Grid extends React.Component {
     // get the button that was clicked
     const { name, value } = event.target;
 
-    if (name === "addingWalls" || name === "addingWeights" || name === "eraseButton") {
+    if (
+      name === "addingWalls" ||
+      name === "addingWeights" ||
+      name === "eraseButton"
+    ) {
       // reset the gridState if we are alr in one of these modes. Else change
       // to that mode.
       this.setState(prev => ({
         gridState: prev.gridState === name ? "normal" : name,
         mouseOverState: "normal"
-      }))
+      }));
     } else if (name === "resetButton") {
       this.resetGrid();
     } else if (name === "weightSelector") {
@@ -94,7 +96,7 @@ class Grid extends React.Component {
    * @param {event} event The longpress event on any node.
    */
   handleLongPress(event) {
-    // prevent the default highlighting behaviour
+    // prevent the default dragging behaviour
     event.preventDefault();
 
     // update the mouseOver state depending on what we are drawing
@@ -113,7 +115,7 @@ class Grid extends React.Component {
   handlePressRelease() {
     this.setState({
       mouseOverState: "normal"
-    })
+    });
   }
 
   /**
@@ -165,7 +167,6 @@ class Grid extends React.Component {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].isWall = true;
       this.setState({ grid: copied });
-
     } else if (this.state.gridState === "addingWeights") {
       /*  If the user is in "Add Weights" mode, allow the user to paint
        *  individual nodes by clicking on them.
@@ -173,7 +174,6 @@ class Grid extends React.Component {
       const copied = this.state.grid.slice();
       copied[key.row][key.col].weight = this.state.weightValue;
       this.setState({ grid: copied });
-
     } else if (this.state.gridState === "eraseButton") {
       /*  If the user is in "Erase" mode, allow the user to erase
        *  individual nodes by clicking on them.
@@ -184,7 +184,6 @@ class Grid extends React.Component {
       copied[key.row][key.col].weight = 1;
       copied[key.row][key.col].isWall = false;
       this.setState({ grid: copied });
-
     } else {
       // Else, the user is trying to select a start/end node, or ready to start
       // the search algorithm.
